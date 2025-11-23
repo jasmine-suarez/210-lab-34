@@ -273,54 +273,89 @@ int main() {
         cout << i << ": " << towns[i] << (i+1 == towns.size() ? "" : ", ");
     cout << "\n" << endl;
 
-    // Ask user for a start town
-    cout << "Enter start town index (0-" << (int)towns.size()-1 << ") [default 0]: ";
-    int start = 0;
-    if (!(cin >> start)) {
-        // invalid input (e.g., EOF); default to 0
-        cin.clear();
-        start = 0;
-    }
-    if (start < 0 || start >= (int)towns.size()) {
-        cout << "Invalid index, defaulting to 0." << endl;
-        start = 0;
-    }
+    // Interactive menu
+    int choice = -1;
+    while (choice != 0) {
+        cout << "Water Distribution Network Menu:" << endl;
+        cout << "[1] Display water distribution network" << endl;
+        cout << "[2] Check contaminant spread (BFS)" << endl;
+        cout << "[3] Plan inspection route  (DFS)" << endl;
+        cout << "[4] Calculate shortest paths" << endl;
+        cout << "[5] Find Minimum Spanning Tree" << endl;
+        cout << "[0] Exit" << endl;
+        cout << "Enter your choice: ";
 
-    // Run traversals and show town names in visit order
-    auto dfsOrder = graph.DFS_order(start);
-    cout << "\nDFS starting from town " << towns[start] << ":" << endl;
-    for (int idx : dfsOrder) cout << towns[idx] << " ";
-    cout << endl;
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a number between 0 and 5." << endl << endl;
+            continue;
+        }
 
-    auto bfsOrder = graph.BFS_order(start);
-    cout << "\nBFS starting from town " << towns[start] << ":" << endl;
-    for (int idx : bfsOrder) cout << towns[idx] << " ";
-    cout << endl << endl;
+        if (choice == 0) break;
 
-    // Compute and print shortest distances from start using Dijkstra
-    auto distances = graph.dijkstra(start);
-    cout << "Shortest path from node " << start << ":" << endl;
-    for (int i = 0; i < (int)distances.size(); ++i) {
-        cout << start << " -> " << i << " : ";
-        if (distances[i] == numeric_limits<int>::max())
-            cout << "INF";
-        else
-            cout << distances[i];
+        int start = 0;
+        switch (choice) {
+            case 1:
+                graph.printGraphWithNames(towns);
+                break;
+            case 2:
+                cout << "Enter start town index for contaminant source (0-" << (int)towns.size()-1 << "): ";
+                if (!(cin >> start)) { cout << "Invalid input." << endl; break; }
+                if (start < 0 || start >= (int)towns.size()) { cout << "Invalid index." << endl; break; }
+                {
+                    auto order = graph.BFS_order(start);
+                    cout << "Contaminant spread (BFS) starting from " << towns[start] << ":" << endl;
+                    for (int idx : order) cout << towns[idx] << " ";
+                    cout << endl;
+                }
+                break;
+            case 3:
+                cout << "Enter start town index for inspection start (0-" << (int)towns.size()-1 << "): ";
+                if (!(cin >> start)) { cout << "Invalid input." << endl; break; }
+                if (start < 0 || start >= (int)towns.size()) { cout << "Invalid index." << endl; break; }
+                {
+                    auto order = graph.DFS_order(start);
+                    cout << "Inspection route (DFS) starting from " << towns[start] << ":" << endl;
+                    for (int idx : order) cout << towns[idx] << " ";
+                    cout << endl;
+                }
+                break;
+            case 4:
+                cout << "Enter start town index for shortest paths (0-" << (int)towns.size()-1 << "): ";
+                if (!(cin >> start)) { cout << "Invalid input." << endl; break; }
+                if (start < 0 || start >= (int)towns.size()) { cout << "Invalid index." << endl; break; }
+                {
+                    auto distances = graph.dijkstra(start);
+                    cout << "Shortest path from node " << start << ":" << endl;
+                    for (int i = 0; i < (int)distances.size(); ++i) {
+                        cout << start << " -> " << i << " : ";
+                        if (distances[i] == numeric_limits<int>::max()) cout << "INF";
+                        else cout << distances[i];
+                        cout << endl;
+                    }
+                }
+                break;
+            case 5:
+                {
+                    auto mst = kruskalMST(SIZE, edges);
+                    cout << "Minimum Spanning Tree edges:" << endl;
+                    int total = 0;
+                    for (auto &e : mst) {
+                        string a = (e.src < (int)towns.size() ? towns[e.src] : to_string(e.src));
+                        string b = (e.dest < (int)towns.size() ? towns[e.dest] : to_string(e.dest));
+                        cout << "Edge from " << a << " to " << b << " with capacity: " << e.weight << " units" << endl;
+                        total += e.weight;
+                    }
+                    cout << "Total MST weight: " << total << " units" << endl;
+                }
+                break;
+            default:
+                cout << "Invalid choice. Please select 0-5." << endl;
+        }
+
         cout << endl;
     }
-
-    cout << endl;
-    // Compute and print Minimum Spanning Tree (Kruskal)
-    auto mst = kruskalMST(SIZE, edges);
-    cout << "Minimum Spanning Tree edges:" << endl;
-    int total = 0;
-    for (auto &e : mst) {
-        string a = (e.src < (int)towns.size() ? towns[e.src] : to_string(e.src));
-        string b = (e.dest < (int)towns.size() ? towns[e.dest] : to_string(e.dest));
-        cout << "Edge from " << a << " to " << b << " with capacity: " << e.weight << " units" << endl;
-        total += e.weight;
-    }
-    cout << "Total MST weight: " << total << " units" << endl;
 
     return 0;
 }
