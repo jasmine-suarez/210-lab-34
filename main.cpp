@@ -6,6 +6,8 @@
 #include <queue>
 #include <stack>
 #include <string>
+#include <limits>
+#include <functional>
 using namespace std;
 
 const int SIZE = 11;
@@ -149,6 +151,35 @@ public:
         return order;
     }
 
+    // Single-source shortest paths (Dijkstra). Returns vector of distances.
+    vector<int> dijkstra(int start) {
+        const int INF = numeric_limits<int>::max();
+        vector<int> dist(SIZE, INF);
+        // min-heap of (distance, vertex)
+        priority_queue<Pair, vector<Pair>, greater<Pair>> pq;
+
+        dist[start] = 0;
+        pq.push(make_pair(0, start));
+
+        while (!pq.empty()) {
+            auto top = pq.top(); pq.pop();
+            int d = top.first;
+            int u = top.second;
+            if (d > dist[u]) continue;
+
+            for (auto &p : adjList[u]) {
+                int v = p.first;
+                int w = p.second;
+                if (dist[u] != INF && dist[v] > dist[u] + w) {
+                    dist[v] = dist[u] + w;
+                    pq.push(make_pair(dist[v], v));
+                }
+            }
+        }
+
+        return dist;
+    }
+
     // Print adjacency list using names for nodes
     void printGraphWithNames(const vector<string> &names) {
         cout << "Graph's adjacency list (names):" << endl;
@@ -223,6 +254,18 @@ int main() {
     cout << "\nBFS starting from town " << towns[start] << ":" << endl;
     for (int idx : bfsOrder) cout << towns[idx] << " ";
     cout << endl << endl;
+
+    // Compute and print shortest distances from start using Dijkstra
+    auto distances = graph.dijkstra(start);
+    cout << "Shortest path from node " << start << ":" << endl;
+    for (int i = 0; i < (int)distances.size(); ++i) {
+        cout << start << " -> " << i << " : ";
+        if (distances[i] == numeric_limits<int>::max())
+            cout << "INF";
+        else
+            cout << distances[i];
+        cout << endl;
+    }
 
     return 0;
 }
