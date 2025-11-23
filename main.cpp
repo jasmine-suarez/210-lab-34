@@ -109,6 +109,7 @@ int main() {
     vector<Edge> edges = {
         // (x, y, w) —> edge from x to y having weight w
         {0,1,12},{0,2,8},{0,3,21},{2,3,6},{2,4,4},
+        {1,7,5},{3,8,4},{4,9,7},{7,10,10},{7,11,13},{10,11,6}
     };
 
     // Creates graph
