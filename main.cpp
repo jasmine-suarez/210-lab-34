@@ -264,12 +264,30 @@ int main() {
         "Oakridge"   //10
     };
 
-    int choice;
+    // Show index mapping for interactive selection
+    cout << "\nTowns (index):" << endl;
+    for (int i = 0; i < towns.size(); ++i)
+        cout << i << ": " << towns[i] << (i+1 == towns.size() ? "" : ", ");
+    cout << "\n" << endl;
+
+    // Ask user for a start town
+    cout << "Enter start town index (0-" << (int)towns.size()-1 << ") [default 0]: ";
     int start = 0;
+    if (!(cin >> start)) {
+        // invalid input (e.g., EOF); default to 0
+        cin.clear();
+        start = 0;
+    }
+    if (start < 0 || start >= (int)towns.size()) {
+        cout << "Invalid index, defaulting to 0." << endl;
+        start = 0;
+    }
+
+    int choice;
 
     // MENU LOOP
     do {
-        cout << " Town Network Menu:\n";
+        cout << "\nTown Network Menu:\n";
         cout << "[1] Display town network\n";
         cout << "[2] Check BFS\n";
         cout << "[3] Plan DFS\n";
@@ -293,7 +311,7 @@ int main() {
                 graph.DFS(start);
                 break;
 
-            case 4:
+            case 4: {
                 // Compute and print shortest distances from start using Dijkstra
                 auto distances = graph.dijkstra(start);
                 cout << "Shortest path from node " << start << ":" << endl;
@@ -306,8 +324,9 @@ int main() {
                     cout << endl;
                 }
                 break;
+            }
 
-            case 5:
+            case 5: {
                 // Compute and print Minimum Spanning Tree (Kruskal)
                 auto mst = kruskalMST(SIZE, edges);
                 cout << "Minimum Spanning Tree edges:" << endl;
@@ -320,6 +339,7 @@ int main() {
                 }
                 cout << "Total MST weight: " << total << " units" << endl;
                 break;
+            }
 
             case 0:
                 cout << "Exiting program." << endl;
@@ -331,25 +351,6 @@ int main() {
         }
         
     } while (choice != 0);
-
-    // Show index mapping for interactive selection
-    cout << "\nTowns (index):" << endl;
-    for (int i = 0; i < towns.size(); ++i)
-        cout << i << ": " << towns[i] << (i+1 == towns.size() ? "" : ", ");
-    cout << "\n" << endl;
-
-    // Ask user for a start town
-    cout << "Enter start town index (0-" << (int)towns.size()-1 << ") [default 0]: ";
-    int start = 0;
-    if (!(cin >> start)) {
-        // invalid input (e.g., EOF); default to 0
-        cin.clear();
-        start = 0;
-    }
-    if (start < 0 || start >= (int)towns.size()) {
-        cout << "Invalid index, defaulting to 0." << endl;
-        start = 0;
-    }
 
     // Run traversals and show town names in visit order
     auto dfsOrder = graph.DFS_order(start);
