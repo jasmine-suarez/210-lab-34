@@ -7,7 +7,7 @@
 #include <stack>
 using namespace std;
 
-const int SIZE = 12;
+const int SIZE = 11;
 
 struct Edge {
     int src, dest, weight;
@@ -109,7 +109,7 @@ int main() {
     vector<Edge> edges = {
         // (x, y, w) —> edge from x to y having weight w
         {0,1,9},{0,2,7},{0,3,22},{2,3,5},{2,4,5},
-        {1,7,5},{3,8,4},{0,9,29},{8,9,31},{9,10,13},{1,6,28},{6,7,24}
+        {1,7,5},{3,8,4},{3,5,29},{8,9,31},{9,10,13},{1,6,28},{6,7,24}
     };
 
     // Creates graph
