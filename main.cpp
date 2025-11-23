@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 #include <stack>
+#include <string>
 using namespace std;
 
 const int SIZE = 11;
@@ -102,6 +103,65 @@ public:
         }
         cout << endl;
     }
+
+    // Return BFS visit order as a vector of indices
+    vector<int> BFS_order(int start) {
+        vector<bool> visited(SIZE, false);
+        queue<int> q;
+        vector<int> order;
+
+        visited[start] = true;
+        q.push(start);
+
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            order.push_back(u);
+
+            for (auto &p : adjList[u]) {
+                int v = p.first;
+                if (!visited[v]) {
+                    visited[v] = true;
+                    q.push(v);
+                }
+            }
+        }
+        return order;
+    }
+
+    // Return DFS visit order (iterative) as a vector of indices
+    vector<int> DFS_order(int start) {
+        vector<bool> visited(SIZE, false);
+        stack<int> st;
+        vector<int> order;
+
+        st.push(start);
+        while (!st.empty()) {
+            int u = st.top(); st.pop();
+            if (visited[u]) continue;
+            visited[u] = true;
+            order.push_back(u);
+
+            for (auto &p : adjList[u]) {
+                int v = p.first;
+                if (!visited[v]) st.push(v);
+            }
+        }
+        return order;
+    }
+
+    // Print adjacency list using names for nodes
+    void printGraphWithNames(const vector<string> &names) {
+        cout << "Graph's adjacency list (names):" << endl;
+        for (int i = 0; i < adjList.size(); i++) {
+            string nodeName = (i < names.size() ? names[i] : to_string(i));
+            cout << nodeName << " (" << i << ") --> ";
+            for (Pair v : adjList[i]) {
+                string nbr = (v.first < names.size() ? names[v.first] : to_string(v.first));
+                cout << "(" << nbr << ", " << v.second << ") ";
+            }
+            cout << endl;
+        }
+    }
 };
 
 int main() {
@@ -115,13 +175,54 @@ int main() {
     // Creates graph
     Graph graph(edges);
 
-    // Prints adjacency list representation of graph
-    graph.printGraph();
+    // A real-world example: small regional transportation network
+    // Nodes are towns; edge weights are distances in kilometers.
+    vector<string> towns = {
+        "Central",   // 0
+        "Riverside", // 1
+        "Hilltown",  // 2
+        "Lakeside",  // 3
+        "Maple",     // 4
+        "Easton",    // 5
+        "Westfield", // 6
+        "Northport", // 7
+        "Southbay",  // 8
+        "Greenwich", // 9
+        "Oakridge"   //10
+    };
 
-    // Prints DFS,BFS from node 0
-    graph.DFS(0);
-    graph.BFS(0);
+    cout << "Regional transportation network (nodes = towns, weights = distance km)\n" << endl;
+    graph.printGraphWithNames(towns);
 
+    // Show index mapping for interactive selection
+    cout << "\nTowns (index):" << endl;
+    for (int i = 0; i < towns.size(); ++i)
+        cout << i << ": " << towns[i] << (i+1 == towns.size() ? "" : ", ");
+    cout << "\n" << endl;
+
+    // Ask user for a start town
+    cout << "Enter start town index (0-" << (int)towns.size()-1 << ") [default 0]: ";
+    int start = 0;
+    if (!(cin >> start)) {
+        // invalid input (e.g., EOF); default to 0
+        cin.clear();
+        start = 0;
+    }
+    if (start < 0 || start >= (int)towns.size()) {
+        cout << "Invalid index, defaulting to 0." << endl;
+        start = 0;
+    }
+
+    // Run traversals and show town names in visit order
+    auto dfsOrder = graph.DFS_order(start);
+    cout << "\nDFS starting from town " << towns[start] << ":" << endl;
+    for (int idx : dfsOrder) cout << towns[idx] << " ";
+    cout << endl;
+
+    auto bfsOrder = graph.BFS_order(start);
+    cout << "\nBFS starting from town " << towns[start] << ":" << endl;
+    for (int idx : bfsOrder) cout << towns[idx] << " ";
+    cout << endl << endl;
 
     return 0;
 }
