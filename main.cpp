@@ -6,6 +6,7 @@
 #include <queue>
 #include <stack>
 #include <string>
+#include <algorithm>
 #include <limits>
 #include <functional>
 using namespace std;
@@ -195,6 +196,47 @@ public:
     }
 };
 
+// Disjoint Set Union (Union-Find) for Kruskal's algorithm
+class DSU {
+    vector<int> parent, rankv;
+public:
+    DSU(int n) : parent(n), rankv(n, 0) {
+        for (int i = 0; i < n; ++i) parent[i] = i;
+    }
+
+    int find(int x) {
+        if (parent[x] == x) return x;
+        return parent[x] = find(parent[x]);
+    }
+
+    void unite(int a, int b) {
+        a = find(a); b = find(b);
+        if (a == b) return;
+        if (rankv[a] < rankv[b]) parent[a] = b;
+        else if (rankv[b] < rankv[a]) parent[b] = a;
+        else { parent[b] = a; rankv[a]++; }
+    }
+};
+
+// Kruskal's algorithm: return list of edges in the MST
+vector<Edge> kruskalMST(int V, const vector<Edge> &edges) {
+    vector<Edge> sorted = edges;
+    sort(sorted.begin(), sorted.end(), [](const Edge &a, const Edge &b){
+        return a.weight < b.weight;
+    });
+
+    DSU dsu(V);
+    vector<Edge> mst;
+    for (auto &e : sorted) {
+        if (dsu.find(e.src) != dsu.find(e.dest)) {
+            dsu.unite(e.src, e.dest);
+            mst.push_back(e);
+            if ((int)mst.size() == V - 1) break;
+        }
+    }
+    return mst;
+}
+
 int main() {
     // Creates a vector of graph edges/weights
     vector<Edge> edges = {
@@ -266,6 +308,19 @@ int main() {
             cout << distances[i];
         cout << endl;
     }
+
+    cout << endl;
+    // Compute and print Minimum Spanning Tree (Kruskal)
+    auto mst = kruskalMST(SIZE, edges);
+    cout << "Minimum Spanning Tree edges:" << endl;
+    int total = 0;
+    for (auto &e : mst) {
+        string a = (e.src < (int)towns.size() ? towns[e.src] : to_string(e.src));
+        string b = (e.dest < (int)towns.size() ? towns[e.dest] : to_string(e.dest));
+        cout << "Edge from " << a << " to " << b << " with capacity: " << e.weight << " units" << endl;
+        total += e.weight;
+    }
+    cout << "Total MST weight: " << total << " units" << endl;
 
     return 0;
 }
