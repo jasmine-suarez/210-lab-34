@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <vector>
+#include <queue>
+#include <stack>
 using namespace std;
 
 const int SIZE = 7;
@@ -46,6 +48,60 @@ public:
             cout << endl;
         }
     }
+
+    // Breadth-First Search starting from 'start'
+    void BFS(int start) {
+        vector<bool> visited(SIZE, false);
+        queue<int> q;
+
+        visited[start] = true;
+        q.push(start);
+        cout << "BFS starting from vertex " << start << ":" << endl;
+        // print nodes on the next line
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            cout << u << " ";
+
+            // enqueue all unvisited neighbors
+            for (auto &p : adjList[u]) {
+                int v = p.first;
+                if (!visited[v]) {
+                    visited[v] = true;
+                    q.push(v);
+                }
+            }
+        }
+        cout << endl;
+    }
+
+    // Depth-First Search (iterative using a stack) starting from 'start'
+    void DFS(int start) {
+        vector<bool> visited(SIZE, false);
+        stack<int> st;
+
+        st.push(start);
+
+        cout << "DFS starting from vertex " << start << ":" << endl;
+        // print nodes on the next line
+        while (!st.empty()) {
+            int u = st.top(); st.pop();
+
+            if (visited[u])
+                continue;
+
+            visited[u] = true;
+            cout << u << " ";
+
+            // push neighbors onto stack in adjacency order so
+            // the last neighbor is visited first
+            for (auto &p : adjList[u]) {
+                int v = p.first;
+                if (!visited[v])
+                    st.push(v);
+            }
+        }
+        cout << endl;
+    }
 };
 
 int main() {
@@ -60,6 +116,10 @@ int main() {
 
     // Prints adjacency list representation of graph
     graph.printGraph();
+
+    // Prints DFS,BFS from node 0
+    graph.DFS(0);
+    graph.BFS(0);
 
     return 0;
 }
