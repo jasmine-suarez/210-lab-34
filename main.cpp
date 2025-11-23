@@ -241,15 +241,15 @@ int main() {
     // Creates a vector of graph edges/weights
     vector<Edge> edges = {
         // (x, y, w) —> edge from x to y having weight w
-        {0,1,9},{0,2,7},{0,3,13},{2,3,5},{2,4,5},
-        {1,7,5},{3,8,4},{3,5,29},{8,9,31},{9,10,13},{1,6,28},{6,7,24}
+        {0,1,9},{0,2,7},{0,3,13},{2,3,5},{2,4,16},
+        {1,6,9},{3,8,8},{3,5,21},{8,9,31},{9,10,13},{1,7,32},{6,7,28}
     };
 
     // Creates graph
     Graph graph(edges);
 
-    // A real-world example: small water distribution network
-    // Nodes are towns; edge weights are pipe lengths in kilometers.
+    // A real-world example: small regional transportation network
+    // Nodes are towns; edge weights are distances in kilometers.
     vector<string> towns = {
         "Central",   // 0
         "Riverside", // 1
@@ -264,7 +264,31 @@ int main() {
         "Oakridge"   //10
     };
 
-    cout << "Water distribution network (nodes = towns, weights = pipe length km)\n" << endl;
+    int choice;
+
+    // MENU LOOP
+    do {
+        cout << " Town Network Menu:\n";
+        cout << "[1] Display town network\n";
+        cout << "[2] Check BFS\n";
+        cout << "[3] Plan DFS\n";
+        cout << "[4] Calculate shortest paths\n";
+        cout << "[5] Find Minimum Spanning Tree\n";
+        cout << "[0] Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch(choice) {
+            case 1:
+                graph.printGraphWithNames(towns);
+                break;
+                
+            case 2: 
+        }
+        
+    } while (choice != 0);
+
+    cout << "Regional transportation network (nodes = towns, weights = distance km)\n" << endl;
     graph.printGraphWithNames(towns);
 
     // Show index mapping for interactive selection
@@ -288,20 +312,20 @@ int main() {
 
     // Run traversals and show town names in visit order
     auto dfsOrder = graph.DFS_order(start);
-    cout << "\nInspection route (DFS) starting from " << towns[start] << ":" << endl;
+    cout << "\nDFS starting from town " << towns[start] << ":" << endl;
     for (int idx : dfsOrder) cout << towns[idx] << " ";
     cout << endl;
 
     auto bfsOrder = graph.BFS_order(start);
-    cout << "\nContaminant spread (BFS) starting from " << towns[start] << ":" << endl;
+    cout << "\nBFS starting from town " << towns[start] << ":" << endl;
     for (int idx : bfsOrder) cout << towns[idx] << " ";
     cout << endl << endl;
 
     // Compute and print shortest distances from start using Dijkstra
     auto distances = graph.dijkstra(start);
-    cout << "Shortest pipe distances from town " << towns[start] << " (km):" << endl;
+    cout << "Shortest path from node " << start << ":" << endl;
     for (int i = 0; i < (int)distances.size(); ++i) {
-        cout << towns[start] << " -> " << (i < (int)towns.size() ? towns[i] : to_string(i)) << " : ";
+        cout << start << " -> " << i << " : ";
         if (distances[i] == numeric_limits<int>::max())
             cout << "INF";
         else
@@ -312,15 +336,15 @@ int main() {
     cout << endl;
     // Compute and print Minimum Spanning Tree (Kruskal)
     auto mst = kruskalMST(SIZE, edges);
-    cout << "Minimum Spanning Tree (water network backbone) edges:" << endl;
+    cout << "Minimum Spanning Tree edges:" << endl;
     int total = 0;
     for (auto &e : mst) {
         string a = (e.src < (int)towns.size() ? towns[e.src] : to_string(e.src));
         string b = (e.dest < (int)towns.size() ? towns[e.dest] : to_string(e.dest));
-        cout << "Pipe from " << a << " to " << b << " with length: " << e.weight << " km" << endl;
+        cout << "Edge from " << a << " to " << b << " with capacity: " << e.weight << " units" << endl;
         total += e.weight;
     }
-    cout << "Total backbone pipe length: " << total << " km" << endl;
+    cout << "Total MST weight: " << total << " units" << endl;
 
     return 0;
 }
