@@ -265,6 +265,7 @@ int main() {
     };
 
     int choice;
+    int start = 0;
 
     // MENU LOOP
     do {
@@ -280,16 +281,56 @@ int main() {
 
         switch(choice) {
             case 1:
+                cout << "Regional transportation network (nodes = towns, weights = distance km)\n" << endl;
                 graph.printGraphWithNames(towns);
                 break;
-                
-            case 2: 
+
+            case 2:
+                graph.BFS(start);
+                break;
+
+            case 3:
+                graph.DFS(start);
+                break;
+
+            case 4:
+                // Compute and print shortest distances from start using Dijkstra
+                auto distances = graph.dijkstra(start);
+                cout << "Shortest path from node " << start << ":" << endl;
+                for (int i = 0; i < (int)distances.size(); ++i) {
+                    cout << start << " -> " << i << " : ";
+                    if (distances[i] == numeric_limits<int>::max())
+                        cout << "INF";
+                    else
+                        cout << distances[i];
+                    cout << endl;
+                }
+                break;
+
+            case 5:
+                // Compute and print Minimum Spanning Tree (Kruskal)
+                auto mst = kruskalMST(SIZE, edges);
+                cout << "Minimum Spanning Tree edges:" << endl;
+                int total = 0;
+                for (auto &e : mst) {
+                    string a = (e.src < (int)towns.size() ? towns[e.src] : to_string(e.src));
+                    string b = (e.dest < (int)towns.size() ? towns[e.dest] : to_string(e.dest));
+                    cout << "Edge from " << a << " to " << b << " with capacity: " << e.weight << " units" << endl;
+                    total += e.weight;
+                }
+                cout << "Total MST weight: " << total << " units" << endl;
+                break;
+
+            case 0:
+                cout << "Exiting program." << endl;
+                break;
+
+            default:
+                cout << "Invalid choice. Enter number 0-5." << endl;
+                break;
         }
         
     } while (choice != 0);
-
-    cout << "Regional transportation network (nodes = towns, weights = distance km)\n" << endl;
-    graph.printGraphWithNames(towns);
 
     // Show index mapping for interactive selection
     cout << "\nTowns (index):" << endl;
@@ -320,31 +361,6 @@ int main() {
     cout << "\nBFS starting from town " << towns[start] << ":" << endl;
     for (int idx : bfsOrder) cout << towns[idx] << " ";
     cout << endl << endl;
-
-    // Compute and print shortest distances from start using Dijkstra
-    auto distances = graph.dijkstra(start);
-    cout << "Shortest path from node " << start << ":" << endl;
-    for (int i = 0; i < (int)distances.size(); ++i) {
-        cout << start << " -> " << i << " : ";
-        if (distances[i] == numeric_limits<int>::max())
-            cout << "INF";
-        else
-            cout << distances[i];
-        cout << endl;
-    }
-
-    cout << endl;
-    // Compute and print Minimum Spanning Tree (Kruskal)
-    auto mst = kruskalMST(SIZE, edges);
-    cout << "Minimum Spanning Tree edges:" << endl;
-    int total = 0;
-    for (auto &e : mst) {
-        string a = (e.src < (int)towns.size() ? towns[e.src] : to_string(e.src));
-        string b = (e.dest < (int)towns.size() ? towns[e.dest] : to_string(e.dest));
-        cout << "Edge from " << a << " to " << b << " with capacity: " << e.weight << " units" << endl;
-        total += e.weight;
-    }
-    cout << "Total MST weight: " << total << " units" << endl;
 
     return 0;
 }
